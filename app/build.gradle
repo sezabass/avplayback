@@ -1,0 +1,80 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+androidExtensions.experimental = true
+
+android {
+    dataBinding.enabled = true
+
+    compileSdkVersion versions.compileSdk
+    buildToolsVersion "29.0.2"
+    defaultConfig {
+        applicationId "com.looke.avplayback"
+        minSdkVersion versions.minSdk
+        targetSdkVersion versions.targetSdk
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments << ["dagger.gradle.incremental": "true"]
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+        test.java.srcDirs += 'src/test/kotlin'
+        androidTest.java.srcDirs += 'src/androidTest/kotlin'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation libraries.kotlin
+
+    //region androidx
+    implementation libraries.androidxCore
+    implementation libraries.appCompat
+    implementation libraries.constraint
+    implementation libraries.recyclerView
+    implementation libraries.lifecycleExtensions
+    //endregion
+
+    //region dagger
+    implementation libraries.dagger
+    implementation libraries.daggerSupport
+    kapt libraries.daggerCompiler
+    kapt libraries.daggerProcessor
+    //endregion
+
+    //region api calls
+    libGroups.coroutines.each { implementation it.value }
+    libGroups.rest.each { implementation it.value }
+    //endregion
+
+    implementation libraries.coil
+
+    //region tests
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    //endregion
+}
