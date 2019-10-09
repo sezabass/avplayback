@@ -12,3 +12,5 @@ Stack:
 - Retrofit
 - Moshi
 - Coil
+
+Kanban board: https://trello.com/b/3tm8wAWV/looke-android
