@@ -20,7 +20,7 @@
             style="@style/TextAppearance.AppCompat.Large"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="@dimen/videos_title_padding"
+            android:padding="@dimen/title_padding"
             android:text="@string/videos_title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

@@ -2,6 +2,7 @@
     package="com.looke.avplayback">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:name=".core.application.CustomApplication"
@@ -24,6 +25,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".playback.presentation.PlaybackActivity" />
 
     </application>
 </manifest>
