@@ -4,6 +4,7 @@
 
     <dimen name="videos_loading_size">24dp</dimen>
     <dimen name="video_image_size">48dp</dimen>
-    <dimen name="video_image_margin">24dp</dimen>
+    <dimen name="video_image_horizontal_margin">24dp</dimen>
+    <dimen name="video_image_vertical_margin">8dp</dimen>
     <dimen name="playback_loading_size">60dp</dimen>
 </resources>
