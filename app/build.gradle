@@ -56,6 +56,7 @@ dependencies {
     implementation libraries.constraint
     implementation libraries.recyclerView
     implementation libraries.lifecycleExtensions
+    implementation libraries.design
     //endregion
 
     //region dagger

@@ -20,12 +20,18 @@
             style="@style/TextAppearance.AppCompat.Large"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/videos_title_margin"
-            android:layout_marginLeft="@dimen/videos_title_margin"
-            android:layout_marginTop="@dimen/videos_title_margin"
+            android:padding="@dimen/videos_title_padding"
             android:text="@string/videos_title"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ProgressBar
+            android:layout_width="@dimen/videos_loading_size"
+            android:layout_height="@dimen/videos_loading_size"
+            app:layout_constraintBottom_toBottomOf="@id/title"
+            app:layout_constraintStart_toEndOf="@id/title"
+            app:layout_constraintTop_toTopOf="@id/title"
+            app:visible="@{safeUnbox(viewModel.loading)}" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/videos_list"

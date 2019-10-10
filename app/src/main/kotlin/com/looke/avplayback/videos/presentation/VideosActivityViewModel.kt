@@ -1,5 +1,6 @@
 package com.looke.avplayback.videos.presentation
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.looke.avplayback.core.domain.ResponseState
@@ -18,13 +19,12 @@ internal class VideosActivityViewModel @Inject constructor(
 
     val videosListState = SingleLiveEvent<ScreenState<List<LookeVideo>>>()
     val openVideo = SingleLiveEvent<LookeVideo>()
-    val isLoading: Boolean
-        get() = videosListState.value?.let { it is ScreenState.Loading } ?: false
+    val loading = MutableLiveData<Boolean>()
 
     fun fetchVideos() {
 
         viewModelScope.launch {
-            videosListState.postValue(ScreenState.Loading)
+            loading.postValue(true)
 
             val response = withContext(Dispatchers.IO) {
                 repository.fetchVideos()
@@ -41,6 +41,8 @@ internal class VideosActivityViewModel @Inject constructor(
                     ScreenState.Error(response.e.message)
                 )
             }
+
+            loading.postValue(false)
         }
     }
 
