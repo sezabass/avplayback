@@ -17,7 +17,9 @@ class PlaybackActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityPlaybackBinding
 
-    private var mediaPlayer: MediaPlayer? = null
+    private var audioMediaPlayer: MediaPlayer? = null
+    private var videoMediaPlayer: MediaPlayer? = null
+
     private val video by lazy {
         intent.getParcelableExtra<LookeVideo>(KEY_VIDEO)!!
     }
@@ -31,14 +33,12 @@ class PlaybackActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-
         setupVideo()
         setupAudio()
     }
 
     override fun onPause() {
         super.onPause()
-
         stopVideo()
         stopAudio()
     }
@@ -54,15 +54,16 @@ class PlaybackActivity : AppCompatActivity() {
             it.start()
         }
         vv.setOnPreparedListener {
+            videoMediaPlayer = it
             binding.playbackLoading.hide()
             it.start()
-            mediaPlayer?.start()
+            audioMediaPlayer?.start()
         }
     }
 
     private fun setupAudio() {
-        mediaPlayer = MediaPlayer.create(this, video.audioURL)
-        mediaPlayer?.setOnCompletionListener {
+        audioMediaPlayer = MediaPlayer.create(this, video.audioURL)
+        audioMediaPlayer?.setOnCompletionListener {
             stopVideo()
             stopAudio()
         }
@@ -70,10 +71,14 @@ class PlaybackActivity : AppCompatActivity() {
 
     private fun stopVideo() {
         vv.stopPlayback()
+        videoMediaPlayer?.release()
     }
 
     private fun stopAudio() {
-        mediaPlayer?.stop()
+        audioMediaPlayer?.let{
+            it.stop()
+            it.release()
+        }
     }
 
     companion object {
