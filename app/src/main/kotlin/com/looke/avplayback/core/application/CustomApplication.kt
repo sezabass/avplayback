@@ -4,7 +4,6 @@ import android.app.Application
 import com.looke.avplayback.core.di.ApplicationComponent
 import com.looke.avplayback.core.di.ApplicationComponentProvider
 import com.looke.avplayback.core.di.DaggerApplicationComponent
-import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
 import javax.inject.Inject
