@@ -1,5 +1,6 @@
 package com.looke.avplayback.videos.data.model
 
+import android.net.Uri
 import com.looke.avplayback.videos.domain.LookeVideo
 import com.looke.avplayback.videos.domain.LookeVideos
 
@@ -20,9 +21,9 @@ data class LookeVideoResponse(
 ) {
     fun toLookeVideo(): LookeVideo = LookeVideo(
         name = name,
-        videoURL = bg,
+        videoURL = Uri.parse(bg),
         imageURL = im,
-        audioURL = sg
+        audioURL = Uri.parse(sg)
     )
 }
 
