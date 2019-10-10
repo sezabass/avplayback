@@ -7,7 +7,8 @@ import retrofit2.http.Query
 
 internal interface VideosService {
 
-    @GET("/v0/b/desafio-dev-android.appspot.com/o/assets.json")
+//    @GET("/v0/b/desafio-dev-android.appspot.com/o/assets.json")
+    @GET("https://demo9357932.mockable.io/videos")
     suspend fun fetchVideos(
         @Query("alt") alt: String,
         @Query("token") token: String
