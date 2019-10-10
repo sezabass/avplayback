@@ -8,6 +8,7 @@ import androidx.annotation.NonNull
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.looke.avplayback.R
+import com.looke.avplayback.core.extension.hide
 import com.looke.avplayback.databinding.ActivityPlaybackBinding
 import com.looke.avplayback.videos.domain.LookeVideo
 import kotlinx.android.synthetic.main.activity_playback.*
@@ -53,7 +54,9 @@ class PlaybackActivity : AppCompatActivity() {
             it.start()
         }
         vv.setOnPreparedListener {
+            binding.playbackLoading.hide()
             it.start()
+            mediaPlayer?.start()
         }
     }
 
@@ -61,8 +64,8 @@ class PlaybackActivity : AppCompatActivity() {
         mediaPlayer = MediaPlayer.create(this, video.audioURL)
         mediaPlayer?.setOnCompletionListener {
             stopVideo()
+            stopAudio()
         }
-        mediaPlayer?.start()
     }
 
     private fun stopVideo() {
