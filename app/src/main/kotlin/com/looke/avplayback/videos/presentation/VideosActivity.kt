@@ -1,15 +1,18 @@
 package com.looke.avplayback.videos.presentation
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.looke.avplayback.R
+import com.looke.avplayback.core.domain.ScreenState
+import com.looke.avplayback.core.extension.showSnackBar
 import com.looke.avplayback.databinding.ActivityVideosBinding
+import com.looke.avplayback.playback.presentation.PlaybackActivity
+import com.looke.avplayback.videos.domain.LookeVideo
 import com.looke.avplayback.videos.presentation.adapter.VideosAdapter
 import com.looke.avplayback.videos.presentation.model.VideoUIModel
 import dagger.android.AndroidInjection
@@ -47,20 +50,31 @@ class VideosActivity : AppCompatActivity() {
     }
 
     private fun setupAdapter() {
-        listAdapter = VideosAdapter {
-            openVideo(it)
+        listAdapter = VideosAdapter { index ->
+            viewModel.onUserRequestedToOpenVideo(index)
         }
         binding.videosList.adapter = listAdapter
     }
 
     private fun setupObservers() {
-        viewModel.videos.observe(this, Observer {
-            listAdapter.setData(it.map { video -> VideoUIModel((video)) })
+        viewModel.videosListState.observe(this, Observer { state ->
+            when (state) {
+                is ScreenState.Success -> listAdapter.setData(state.data.map { video ->
+                    VideoUIModel((video))
+                })
+                is ScreenState.Error -> binding.root.showSnackBar(
+                    getString(R.string.videos_load_error), Snackbar.LENGTH_LONG
+                )
+            }
+        })
+        viewModel.openVideo.observe(this, Observer {
+            openPlaybackScreen(it)
         })
     }
 
-    private fun openVideo(videoName: String) {
-        Log.d("Activity", videoName)
+    private fun openPlaybackScreen(video: LookeVideo) {
+        val intent = PlaybackActivity.createIntent(this, video)
+        startActivity(intent)
     }
 
 }

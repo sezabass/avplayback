@@ -9,7 +9,7 @@ import com.looke.avplayback.databinding.ListItemVideosBinding
 import com.looke.avplayback.videos.presentation.model.VideoUIModel
 
 internal class VideosAdapter(
-    private val rowClickCallback: (name: String) -> Unit
+    private val rowClickCallback: (index: Int) -> Unit
 ) : RecyclerView.Adapter<VideosAdapter.VideosViewHolder>() {
 
     private val videos = mutableListOf<VideoUIModel>()
@@ -28,11 +28,11 @@ internal class VideosAdapter(
         holder.bind(videos[position])
     }
 
-    inner class VideosViewHolder(val binding: ListItemVideosBinding) :
+    inner class VideosViewHolder(private val binding: ListItemVideosBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(data: VideoUIModel) {
             binding.video = data
-            binding.videoItem.setOnClickListener { rowClickCallback(data.name) }
+            binding.videoItem.setOnClickListener { rowClickCallback(adapterPosition) }
         }
     }
 

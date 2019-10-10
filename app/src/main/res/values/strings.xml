@@ -3,4 +3,6 @@
 
     <string name="videos_title">Vídeos</string>
     <string name="videos_item_default_title">Vídeo</string>
+
+    <string name="videos_load_error">Houve um problema ao carregar a lista de vídeos.</string>
 </resources>
