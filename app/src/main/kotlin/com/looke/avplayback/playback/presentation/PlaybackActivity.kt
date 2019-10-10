@@ -26,9 +26,20 @@ class PlaybackActivity : AppCompatActivity() {
 
         setupBinding()
         binding.playbackTitle.text = video.name
+    }
+
+    override fun onResume() {
+        super.onResume()
 
         setupVideo()
         setupAudio()
+    }
+
+    override fun onPause() {
+        super.onPause()
+
+        stopVideo()
+        stopAudio()
     }
 
     private fun setupBinding() {
@@ -49,9 +60,17 @@ class PlaybackActivity : AppCompatActivity() {
     private fun setupAudio() {
         mediaPlayer = MediaPlayer.create(this, video.audioURL)
         mediaPlayer?.setOnCompletionListener {
-            vv.stopPlayback()
+            stopVideo()
         }
         mediaPlayer?.start()
+    }
+
+    private fun stopVideo() {
+        vv.stopPlayback()
+    }
+
+    private fun stopAudio() {
+        mediaPlayer?.stop()
     }
 
     companion object {
