@@ -16,6 +16,8 @@ jobs:
         uses: actions/setup-ruby@v1
         with:
           ruby-version: 2.6.x
+      - name: Install Fastlane
+        run: bundle install
       - name: Run unit tests
         run: bundle exec fastlane unit_tests
       - name: Run Package APK
