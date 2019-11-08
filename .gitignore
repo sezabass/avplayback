@@ -72,3 +72,7 @@ lint/tmp/
 
 #Mac OS files
 *.DS_Store
+
+#Fastlane
+Gemfile.lock
+report.xml

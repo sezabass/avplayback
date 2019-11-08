@@ -1,0 +1,198 @@
+# Customise this file, documentation can be found here:
+# https://github.com/fastlane/fastlane/tree/master/fastlane/docs
+# All available actions: https://docs.fastlane.tools/actions
+# can also be listed using the `fastlane actions` command
+
+# Change the syntax highlighting to Ruby
+# All lines starting with a # are ignored when running `fastlane`
+
+# If you want to automatically update fastlane if a new version is available:
+# update_fastlane
+
+# This is the minimum version number required.
+# Update this, if you use features of a newer version
+fastlane_version "2.28.3"
+
+default_platform :android
+
+platform :android do
+  
+  UPDATE_TYPES = [:major, :minor, :patch]
+  
+  before_all do
+    ENV["GITHUB_REPO"] = "contratadome/candidates-android-app"
+    # ENV["SLACK_URL"] = "https://hooks.slack.com/services/..."
+  end
+
+  desc "Checks for WIP PRs"
+  lane :basic_checks do
+    ktlint
+    unit_tests
+  end
+
+  desc "Checks for non-wip PRs"
+  lane :checks_and_distribution do
+    basic_checks
+    beta_stg_release
+  end
+
+  desc "Start release candidate"
+  lane :start_release_candidate do |options|
+    current_version_name = android_get_version_name
+    current_version_code = android_get_version_code
+
+    update_type = options[:update_type].to_sym
+    
+    begin
+      new_version = get_bump_version(update_type)
+      git_create_branch(branch_name: "release-#{new_version}")
+      UI.important "\n\nBumping version from #{current_version_name} to #{new_version}\n"
+      update_version_and_changelog(new_version)
+      
+      create_pull_request(
+        repo: ENV["GITHUB_REPO"],
+        title: "Release #{new_version}",
+        base: "master" # optional, defaults to "master"
+      )
+    rescue => ex
+      UI.error ex
+      android_set_version_code(version_code: current_version_code)
+      android_set_version_name(version_name: current_version_name)
+    end
+    
+  end
+
+  desc "Start hotfix"
+  lane :start_hotfix do
+    current_version_name = android_get_version_name
+    current_version_code = android_get_version_code
+
+    begin
+      new_version = get_bump_version(:patch)
+      git_create_branch(branch_name: "hotfix-#{new_version}")
+      UI.important "\n\nBumping version from #{current_version_name} to #{new_version}\n"
+      update_version_and_changelog(new_version)
+
+      create_pull_request(
+        repo: ENV["GITHUB_REPO"],
+        title: "Hotfix #{new_version}",
+        base: "master" # optional, defaults to "master"
+      )
+    rescue => ex
+      UI.error ex
+      android_set_version_code(version_code: current_version_code)
+      android_set_version_name(version_name: current_version_name)
+    end
+  end
+
+  desc "Build and Submit a new version StgRelease to App Distribution"
+  lane :beta_stg_release do
+    current_version_name = android_get_version_name
+    set_version_name_for_app_distribution
+    gradle(task: "packageStgReleaseUniversalApk")
+    lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH] = "app/build/outputs/universal_apk/stgRelease/app-stg-release-universal.apk"
+
+    distribute_app
+    android_set_version_name(version_name: current_version_name)
+  end
+
+  desc "Deploy a new version to the Google Play"
+  lane :deploy do
+    version = android_get_version_name
+    add_git_tag(tag: "v#{version}")
+    push_to_git_remote
+
+    gradle(
+      task: "assemble",
+      flavor: "Prod",
+      build_type: "Release",
+      properties: {
+        "android.injected.signing.store.file" => ENV['KEY_STORE_PATH'],
+        "android.injected.signing.store.password" => ENV['KEY_STORE_PASSWORD'],
+        "android.injected.signing.key.alias" => ENV['KEY_ALIAS'],
+        "android.injected.signing.key.password" => ENV['KEY_PASSWORD']
+      },
+      print_command: false
+    )
+
+    #supply
+  end
+
+  desc "Runs code linter"
+  lane :ktlint do
+    gradle(
+      task: "ktlintStgDebugCheck"
+    )
+  end
+
+  desc "Runs all unit tests"
+  lane :unit_tests do
+    gradle(
+      task: "test",
+      build_type: "Debug"
+    )
+  end
+
+  # You can define as many lanes as you want
+
+  after_all do |lane|
+    # This block is called, only if the executed lane was successful
+
+    # slack(
+    #   message: "Successfully deployed new App Update."
+    # )
+  end
+
+  error do |lane, exception|
+    # slack(
+    #   message: exception.message,
+    #   success: false
+    # )
+  end
+
+  desc "Firebase App Distribution"
+  lane :distribute_app do
+    branch_name = git_branch
+    firebase_app_distribution(
+      app: ENV["FIREBASE_APP_ID"],
+      release_notes: branch_name,
+      groups: "trusted-testers",
+      firebase_cli_token: ENV["FIREBASE_CLI_TOKEN"]
+    )
+  end
+
+  def get_bump_version(type)
+    index = UPDATE_TYPES.index(type)
+    current_version = android_get_version_name
+    bumped_part = (current_version.split(".")[index].to_i + 1).to_s
+    result = current_version.split(".")
+    result[index] = bumped_part
+    new_version = result.join(".")
+    
+    new_version
+  end
+
+  def update_version_and_changelog(new_version)
+    android_set_version_name(version_name: new_version)
+    android_set_version_code
+
+    git_commit(path: "./app/build.gradle", message: "Version Bump")
+    
+    update_changelog(release_name: new_version)
+    git_commit(path: "./CHANGELOG.md", message: "Updates CHANGELOG")
+
+    push_to_git_remote
+  end
+
+  def set_version_name_for_app_distribution
+    current_version = android_get_version_name
+    branch_name = git_branch
+    android_set_version_name(version_name: "#{current_version}-#{branch_name}")
+  end
+end
+
+# More information about multiple platforms in fastlane: https://github.com/fastlane/fastlane/blob/master/fastlane/docs/Platforms.md
+# All available actions: https://docs.fastlane.tools/actions
+
+# fastlane reports which actions are used
+# No personal data is sent or shared. Learn more at https://github.com/fastlane/enhancer

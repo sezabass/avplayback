@@ -1,4 +1,4 @@
-name: Revelo CI
+name: AvPlayback CI
 
 on: pull_request
 jobs:
@@ -13,7 +13,7 @@ jobs:
         with:
           java-version: 1.8
       - name: Run unit tests
-        run: ./gradlew testDebug
+        run: bundle exec fastlane unit_tests
       - name: Run Package APK
         run: ./gradlew packageReleaseUniversalApk
         
