@@ -16,6 +16,8 @@ jobs:
         uses: actions/setup-ruby@v1
         with:
           ruby-version: 2.6.x
+      - name: Set up Firebase CLI
+        uses: actions/firebase-cli-action@v0.1
       - name: Install Fastlane
         run: bundle install
       - name: Run unit tests
